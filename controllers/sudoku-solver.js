@@ -14,6 +14,71 @@ class SudokuSolver {
     return true;
   }
 
+  validateCordinate(coordinate){
+    let coordinatePoints = [...coordinate];
+
+    if(coordinate.length !== 2){
+      return false;
+    }
+
+    let rowCoordinates = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+
+    if(!rowCoordinates.includes(coordinatePoints[0])){
+      return false;
+    }
+
+    let numeriCoordinate = parseInt(coordinatePoints[1]);
+
+    if(isNaN(numeriCoordinate) || numeriCoordinate < 1 || numeriCoordinate > 9){
+      return false;
+    }
+
+    return true;
+
+  }
+
+  convertCoordinate(coordinate){
+    let coordinatePoints = [...coordinate];
+
+    let rowCoordinates = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+
+    let row = rowCoordinates.indexOf(coordinatePoints[0]);
+    let col = parseInt(coordinatePoints[1]) - 1;
+
+    return {row, col};
+  }
+
+
+  checkAllPlacement(puzzle, coordinate, value){
+    let {row, col} = this.convertCoordinate(coordinate);
+
+
+
+    let rowPlacement = this.checkRowPlacement(puzzle, row, col, value);
+
+    let colPlacement = this.checkColPlacement(puzzle, row, col, value);
+
+    let regionPlacement = this.checkRegionPlacement(puzzle, row, col, value);
+
+    let conflict = [];
+
+    if(!rowPlacement){
+      conflict.push('row');
+    }
+    if(!colPlacement){
+      conflict.push('column');
+    }
+    if(!regionPlacement){
+      conflict.push('region');
+    }
+
+    if(conflict.length === 0){
+      return {valid: true};
+    }
+
+    return {valid: false, conflict};
+  }
+
   checkRowPlacement(puzzleString, row, column, value) {
     value = `${value}`;
     // For column numbers
@@ -33,7 +98,7 @@ class SudokuSolver {
     // For row numbers
     for (let i = 0; i < 9; i++) {
       let index = this.getIndex(i, column);
-      console.log(value, "With", puzzleString[index]);
+      
       // if it is already present in current column, then placement is not possible.
       if (puzzleString[index] === value) {
         return false;
@@ -62,16 +127,20 @@ class SudokuSolver {
     return true;
   }
 
-  solve(puzzleString) {
+  solve(puzzleString) {    
 
     let toSolveIndex = puzzleString.indexOf('.');
+
+    if(toSolveIndex === -1){
+      return puzzleString;
+    }
 
     let row = Math.floor(toSolveIndex/9);
 
     let column = (toSolveIndex%9);
 
     let possibleNext = false;
-    for(let i = 1; i < 9; i ++){
+    for(let i = 1; i <= 9; i ++){
       // i is number to be filled/checked.
 
       if(this.checkRowPlacement(puzzleString, row, column, i) && 
@@ -81,10 +150,11 @@ class SudokuSolver {
 
         // If placement is possible, then place it and call recursively.
         var possibleString = new String(puzzleString);
+        possibleString = [...possibleString];
         let indexToFill = this.getIndex(row, column);
-        possible[indexToFill] = `${i}`;
+        possibleString[indexToFill] = `${i}`;
 
-        let checkDeep = solve(possibleString);
+        let checkDeep = this.solve(possibleString.join(""));
 
         // If recursive solution is not possible, that means this number doesn't belong here.
         if(!checkDeep){
@@ -97,7 +167,7 @@ class SudokuSolver {
 
       }
     }
-    if(!possibleNext){
+    if(!possibleNext){      
       return false;
     }
   }
