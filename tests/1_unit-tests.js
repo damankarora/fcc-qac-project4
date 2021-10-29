@@ -17,8 +17,12 @@ suite('UnitTests', () => {
             assert.doesNotThrow(()=>{solver.validate('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.')});
         })
 
-        test('With invalid String => false', ()=>{
-            assert.throws(()=>{solver.validate('IAmABadString')});
+        test('With invalid length String => true', () => {
+            assert.throws(() => { solver.validate('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37..') });
+        })
+
+        test('With invalid character String => false', ()=>{
+            assert.throws(() => { solver.validate('1.5..2.84..63.12.7.D..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.')});
         });
     });
 
@@ -110,6 +114,10 @@ suite('UnitTests', () => {
           
             assert.equal(solver.solve('82..4..6...16..89...98315.749.157.............53..4...96.415..81..7632..3...28.51'),
                 '827549163531672894649831527496157382218396475753284916962415738185763249374928651');
+        })
+
+        test('Unsolvable String', ()=>{
+            assert.equal(solver.solve('..9..5.1.85.4....2432......1...69.83.9.....6.62.71...8......1945....4.37.4.3..6..'), false);
         })
 
         
