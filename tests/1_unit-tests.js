@@ -13,16 +13,16 @@ suite('UnitTests', () => {
 
         });
 
-        test('With valid String => true', ()=>{
+        test('Logic handles a valid puzzle string of 81 characters', ()=>{
             assert.doesNotThrow(()=>{solver.validate('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.')});
         })
 
-        test('With invalid length String => true', () => {
+        test('Logic handles a puzzle string that is not 81 characters in length', () => {
             assert.throws(() => { solver.validate('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37..') });
         })
 
-        test('With invalid character String => false', ()=>{
-            assert.throws(() => { solver.validate('1.5..2.84..63.12.7.D..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.')});
+        test('Logic handles a puzzle string with invalid characters (not 1-9 or .)', ()=>{
+            assert.throws(() => { solver.validate('1.5..2.84..B3.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.')});
         });
     });
 
@@ -39,7 +39,7 @@ suite('UnitTests', () => {
     })
 
     suite('Testing row placement method', ()=>{
-        test('When number can be placed => true', ()=>{
+        test('Logic handles a valid row placement', ()=>{
             assert.equal(solver.checkRowPlacement('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.',
                 0, 1, 3), true);
             
@@ -47,7 +47,7 @@ suite('UnitTests', () => {
                 8, 8, 8), true);
         })
 
-        test('When number cannot be placed => false', ()=>{
+        test('Logic handles an invalid row placement', ()=>{
             assert.equal(solver.checkRowPlacement('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.', 
                 0, 1, 2), false);
             assert.equal(solver.checkRowPlacement('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.',
@@ -56,27 +56,27 @@ suite('UnitTests', () => {
     });
 
     suite('Testing column placement method', ()=>{
-        test('When number can be placed => true', ()=>{
+        test('Logic handles a valid column placement', ()=>{
             assert.equal(solver.checkColPlacement('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.',
                 1, 0, 9), true);
             assert.equal(solver.checkColPlacement('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.',
                 2, 2, 8), true);
         })
-        test('When number cannot be placed => false', ()=>{
+        test('Logic handles an invalid column placement', ()=>{
             assert.equal(solver.checkColPlacement('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.',
                 4, 0, 1), false);
         })
     });
 
     suite('Testing region placement method', ()=>{
-        test('When number can be placed => true', ()=>{
+        test('Logic handles a valid region (3x3 grid) placement', ()=>{
             assert.equal(solver.checkRegionPlacement('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.', 
                 1, 0, 9), true);
             assert.equal(solver.checkRegionPlacement('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.',
                 2, 2, 8), true);
         })
 
-        test('When number cannot be placed => false', ()=>{
+        test('Logic handles an invalid region (3x3 grid) placement', ()=>{
             assert.equal(solver.checkRegionPlacement('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.', 
                 1, 1, 5), false);
             
@@ -87,7 +87,7 @@ suite('UnitTests', () => {
     
 
     suite('Testing the solve method', ()=>{
-        test('Solvable string 1 => String', ()=>{
+        test('Valid puzzle strings pass the solver', ()=>{
             assert.equal(solver.solve('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.'), 
                 '135762984946381257728459613694517832812936745357824196473298561581673429269145378');           
         })
@@ -110,13 +110,13 @@ suite('UnitTests', () => {
                 '473891265851726394926345817568913472342687951197254638734162589685479123219538746');
           
         })
-        test('Solvable string 5 => String', () => {
+        test('Solver returns the expected solution for an incomplete puzzle', () => {
           
-            assert.equal(solver.solve('82..4..6...16..89...98315.749.157.............53..4...96.415..81..7632..3...28.51'),
+            assert.equal(solver.solve('82754..6...16..89...98315.749.157.............53..4...96.415..81..7632..3...28.51'),
                 '827549163531672894649831527496157382218396475753284916962415738185763249374928651');
         })
 
-        test('Unsolvable String', ()=>{
+        test('Invalid puzzle strings fail the solver', ()=>{
             assert.equal(solver.solve('..9..5.1.85.4....2432......1...69.83.9.....6.62.71...8......1945....4.37.4.3..6..'), false);
         })
 
