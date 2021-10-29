@@ -16,9 +16,10 @@ module.exports = function (app) {
 
       value = parseInt(value);
 
+      let result = solver.validate(puzzle);
 
-      try{
-        solver.validate(puzzle);
+      if(result === true){
+        
         if (value < 1 || value > 9 || isNaN(value)) {
           return res.status(400).json({ error: 'Invalid value' });
         }
@@ -32,8 +33,8 @@ module.exports = function (app) {
         return res.json(result);
 
 
-      }catch(err){
-        return res.status(400).json({ error: err.message });
+      }else{
+        return res.status(400).json({ error: result });
       }
 
       
@@ -46,17 +47,17 @@ module.exports = function (app) {
       if(!puzzle){
         return res.status(400).json({ error: 'Required field missing'})
       }
-
-      try{
-        solver.validate(puzzle);
+      let validateResult = solver.validate(puzzle);
+      if(validateResult === true){
+        
         let result = solver.solve(puzzle);
         if (result === false) {
           return res.json({ error: 'Puzzle cannot be solved' });
         } else {
           return res.json({ solution: result });
         }
-      }catch(err){
-        return res.json({error: err.message});
+      }else{
+        return res.json({error: validateResult});
       }
 
       

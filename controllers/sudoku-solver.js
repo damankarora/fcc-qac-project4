@@ -3,12 +3,14 @@ class SudokuSolver {
   // Validates a puzzle string
   validate(puzzleString) {
     if(puzzleString.length !== 81){
-      throw new Error('Expected puzzle to be 81 characters long');
+      // throw new Error('Expected puzzle to be 81 characters long');
+      return "Expected puzzle to be 81 characters long";
     }
     let chars = [...puzzleString];
     for(let c of chars){
       if(isNaN(parseInt(c)) && c !== '.'){
-        throw new Error('Invalid characters in puzzle');
+        // throw new Error('Invalid characters in puzzle');
+        return "Invalid characters in puzzle";
       }      
     }
 
@@ -29,7 +31,8 @@ class SudokuSolver {
       let regionPlacement = this.checkRegionPlacement(puzzleString, row, column, value);
 
       if(!rowPlacement || !colPlacement || !regionPlacement){
-        throw new Error("Puzzle cannot be solved");
+        // throw new Error("Puzzle cannot be solved");
+        return "Puzzle cannot be solved";
       }
 
     }
