@@ -6,16 +6,19 @@ let solver = new Solver;
 
 suite('UnitTests', () => {
     suite('Testing Validate method', ()=>{
-        test('With empty string => false', ()=>{
-            assert.equal(solver.validate(''), false);
+        test('With empty string => false', ()=>{            
+            assert.throws(()=>{
+                solver.validate('')
+            });
+
         });
 
         test('With valid String => true', ()=>{
-            assert.equal(solver.validate('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.'), true);
+            assert.doesNotThrow(()=>{solver.validate('1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.')});
         })
 
         test('With invalid String => false', ()=>{
-            assert.equal(solver.validate('IAmABadString'), false);
+            assert.throws(()=>{solver.validate('IAmABadString')});
         });
     });
 

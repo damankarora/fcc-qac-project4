@@ -38,7 +38,7 @@ suite('Functional Tests', () => {
             chai.request(server)
                 .post('/api/solve')                
                 .end((err, res) => {
-                    assert.equal(res.status, 200);
+                    assert.equal(res.status, 400);
                     assert.deepEqual(res.body, { error: 'Required field missing' });
                     done();
                 });
@@ -75,8 +75,178 @@ suite('Functional Tests', () => {
                     assert.deepEqual(res.body, { error: 'Puzzle cannot be solved' });
                     done();
                 });
-        })
+        });
 
+    });
+
+    suite('Testing /api/solve endpoint', ()=>{
+        test('Check a puzzle placement with all fields 1', (done)=>{
+            chai.request(server)
+            .post('/api/check/')
+            .send({
+                puzzle: '1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.',
+                coordinate: 'A2',
+                value: 3,
+            })
+            .end((err, res)=>{
+                assert.equal(res.status, 200);
+                assert.property(res.body, 'valid');
+                assert.equal(res.body.valid, true);
+                done();
+            })
+        });
+
+        test('Check a puzzle placement with all fields 2', (done) => {
+            chai.request(server)
+                .post('/api/check/')
+                .send({
+                    puzzle: '1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.',
+                    coordinate: 'B2',
+                    value: 4,
+                })
+                .end((err, res) => {
+                    assert.equal(res.status, 200);
+                    assert.property(res.body, 'valid');
+                    assert.equal(res.body.valid, true);
+                    done();
+                })
+        });
+
+        test('Check a puzzle placement with single placement conflict', (done)=>{
+            chai.request(server)
+                .post('/api/check/')
+                .send({
+                    puzzle: '1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.',
+                    coordinate: 'A2',
+                    value: 8,
+                })
+                .end((err, res) => {
+                    assert.equal(res.status, 200);
+                    assert.property(res.body, 'valid');
+                    assert.equal(res.body.valid, false);
+                    assert.property(res.body, 'conflict');
+                    assert.isArray(res.body.conflict);
+                    assert.equal(res.body.conflict.length, 1);
+                    done();
+                })
+        });
+
+        test('Check a puzzle placement with multiple placement conflicts', (done)=>{
+            chai.request(server)
+                .post('/api/check/')
+                .send({
+                    puzzle: '1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.',
+                    coordinate: 'B2',
+                    value: 7,
+                })
+                .end((err, res) => {
+                    assert.equal(res.status, 200);
+                    assert.property(res.body, 'valid');
+                    assert.equal(res.body.valid, false);
+                    assert.property(res.body, 'conflict');
+                    assert.isArray(res.body.conflict);
+                    assert.equal(res.body.conflict.length, 2);
+                    done();
+                })
+        });
+
+        test('Check a puzzle placement with all placement conflicts', (done)=>{
+            chai.request(server)
+                .post('/api/check/')
+                .send({
+                    puzzle: '1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.',
+                    coordinate: 'A5',
+                    value: 1,
+                })
+                .end((err, res) => {
+                    assert.equal(res.status, 200);
+                    assert.property(res.body, 'valid');
+                    assert.equal(res.body.valid, false);
+                    assert.property(res.body, 'conflict');
+                    assert.isArray(res.body.conflict);
+                    assert.equal(res.body.conflict.length, 3);
+                    done();
+                });
+        });
+
+        test('Check a puzzle placement with missing required fields', (done)=>{
+            chai.request(server)
+                .post('/api/check/')
+                .send({
+                    puzzle: '1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.',                    
+                    value: 1,
+                })
+                .end((err, res) => {
+                    assert.equal(res.status, 400);
+                    assert.property(res.body, 'error');
+                    assert.deepEqual(res.body, { error: "Required field(s) missing" });
+                    done();
+                });
+        });
+
+        test('Check a puzzle placement with invalid characters', (done)=>{
+            chai.request(server)
+                .post('/api/check/')
+                .send({
+                    puzzle: '1.5..2.84..63.12.7.2..5.....9..1....A.2.3674.3.7.2..9.47...8..1..16....926914.37.',
+                    value: 1,
+                    coordinate: 'A5',
+                })
+                .end((err, res) => {
+                    assert.equal(res.status, 400);
+                    assert.property(res.body, 'error');
+                    assert.deepEqual(res.body, { error: "Invalid characters in puzzle"});
+                    done();
+                });
+        });
+
+        test('Check a puzzle placement with incorrect length', (done)=>{
+            chai.request(server)
+                .post('/api/check/')
+                .send({
+                    puzzle: '1.5..2.84..63.12.7.2..5.....9..1....A.sds2.3674.3.7.2..9.47...8..1..16....926914.37.',
+                    value: 1,
+                    coordinate: 'A5',
+                })
+                .end((err, res) => {
+                    assert.equal(res.status, 400);
+                    assert.property(res.body, 'error');
+                    assert.deepEqual(res.body, { error: "Expected puzzle to be 81 characters long" });
+                    done();
+                });
+        });
+
+        test('Check a puzzle placement with invalid placement coordinate', (done)=>{
+            chai.request(server)
+                .post('/api/check/')
+                .send({
+                    puzzle: '1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.',
+                    value: 1,
+                    coordinate: 'Z5',
+                })
+                .end((err, res) => {
+                    assert.equal(res.status, 400);
+                    assert.property(res.body, 'error');
+                    assert.deepEqual(res.body, { error: "Invalid coordinate" });
+                    done();
+                });
+        });
+
+        test('Check a puzzle placement with invalid placement value', (done)=>{
+            chai.request(server)
+                .post('/api/check/')
+                .send({
+                    puzzle: '1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.',
+                    value: 97,
+                    coordinate: 'A5',
+                })
+                .end((err, res) => {
+                    assert.equal(res.status, 400);
+                    assert.property(res.body, 'error');
+                    assert.deepEqual(res.body, { error: "Invalid value" });
+                    done();
+                });
+        })
     })
 });
 

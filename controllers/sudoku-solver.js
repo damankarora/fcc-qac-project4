@@ -3,14 +3,38 @@ class SudokuSolver {
   // Validates a puzzle string
   validate(puzzleString) {
     if(puzzleString.length !== 81){
-      return false;
+      throw new Error('Expected puzzle to be 81 characters long');
     }
     let chars = [...puzzleString];
     for(let c of chars){
       if(isNaN(parseInt(c)) && c !== '.'){
-        return false;
+        throw new Error('Invalid characters in puzzle');
       }      
     }
+
+    // Checking if string is a valid Sudoku question or not.
+
+    for(let i = 0 ; i < 81; i ++){
+      if(puzzleString.charAt(i) === '.'){
+        continue;
+      }
+      let row = Math.floor(i / 9);
+
+      let column = (i % 9);
+      let value = puzzleString.charAt(i);
+      let rowPlacement = this.checkRowPlacement(puzzleString, row, column, value);
+      
+      let colPlacement = this.checkColPlacement(puzzleString, row, column, value);
+
+      let regionPlacement = this.checkRegionPlacement(puzzleString, row, column, value);
+
+      if(!rowPlacement || !colPlacement || !regionPlacement){
+        throw new Error("Puzzle cannot be solved");
+      }
+
+    }
+
+
     return true;
   }
 
@@ -83,6 +107,9 @@ class SudokuSolver {
     value = `${value}`;
     // For column numbers
     for(let i = 0 ; i < 9; i ++){
+      if(i === column){
+        continue;
+      }
       let index = this.getIndex(row, i);
             
       // if it is already present in current row, then placement is not possible.
@@ -97,6 +124,9 @@ class SudokuSolver {
     value = `${value}`;
     // For row numbers
     for (let i = 0; i < 9; i++) {
+      if(i === row){
+        continue;
+      }
       let index = this.getIndex(i, column);
       
       // if it is already present in current column, then placement is not possible.
@@ -117,6 +147,9 @@ class SudokuSolver {
 
     for(let i = 0 ; i < 3; i ++){
       for(let j = 0; j < 3; j ++){
+        if (i + rowPlus === row && j + colPlus === column){
+          continue;
+        }
         let index = this.getIndex(i + rowPlus, j + colPlus);
         
         if(puzzleString[index] === value){
